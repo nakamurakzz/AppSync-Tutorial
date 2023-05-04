@@ -15,20 +15,20 @@ read PROFILE
 
 echo "Creating RDS cluster"
 
-# aws rds create-db-cluster --db-cluster-identifier http-endpoint-test  --master-username $USERNAME \
-# --master-user-password $COMPLEX_PASSWORD --engine aurora --engine-mode serverless \
-# --region $REGION \
-# --profile $PROFILE > /dev/null
+aws rds create-db-cluster --db-cluster-identifier http-endpoint-test  --master-username $USERNAME \
+--master-user-password $COMPLEX_PASSWORD --engine aurora --engine-mode serverless \
+--region $REGION \
+--profile $PROFILE > /dev/null
 
-# echo "RDS cluster created"
+echo "RDS cluster created"
 
-# echo "Creating RDS cluster secret"
-# aws secretsmanager create-secret \
-#     --name HttpRDSSecret \
-#     --secret-string "{\"username\":\"$USERNAME\",\"password\":\"$COMPLEX_PASSWORD\"}" \
-#     --region $REGION \
-#     --profile $PROFILE > /dev/null
-# echo "RDS cluster secret created"
+echo "Creating RDS cluster secret"
+aws secretsmanager create-secret \
+    --name HttpRDSSecret \
+    --secret-string "{\"username\":\"$USERNAME\",\"password\":\"$COMPLEX_PASSWORD\"}" \
+    --region $REGION \
+    --profile $PROFILE > /dev/null
+echo "RDS cluster secret created"
 
 # Get RDS Cluster ARN
 echo "Getting RDS cluster ARN"
