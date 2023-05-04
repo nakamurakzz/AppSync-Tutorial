@@ -1,0 +1,23 @@
+{
+  "name": "appsync-tutorial",
+  "version": "1.0.0",
+  "description": "AppSyncのチュートリアル",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nakamurakzz/AppSync-Tutorial.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nakamurakzz/AppSync-Tutorial/issues"
+  },
+  "homepage": "https://github.com/nakamurakzz/AppSync-Tutorial#readme",
+  "dependencies": {
+    "serverless": "^3.30.1"
+  }
+}
