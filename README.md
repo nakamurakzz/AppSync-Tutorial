@@ -22,3 +22,6 @@ RDS cluster secret ARN: yyyyyyyy
 - Data APIの作成
   - https://docs.aws.amazon.com/ja_jp/AmazonRDS/latest/AuroraUserGuide/data-api.html 
 - テーブルの作成
+
+## Serverless Framework
+https://zenn.dev/merutin/articles/e1de2cbe575b13
