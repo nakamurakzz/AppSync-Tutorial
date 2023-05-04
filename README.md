@@ -16,3 +16,9 @@ RDS cluster ARN: xxxxxxxx
 RDS cluster secret ARN: yyyyyyyy
 ---------------------------------------------------
 ```
+
+## RDS
+- Aurora Serverlessクラスターの作成
+- Data APIの作成
+  - https://docs.aws.amazon.com/ja_jp/AmazonRDS/latest/AuroraUserGuide/data-api.html 
+- テーブルの作成
