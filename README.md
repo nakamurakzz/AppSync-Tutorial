@@ -25,3 +25,10 @@ RDS cluster secret ARN: yyyyyyyy
 
 ## Serverless Framework
 https://zenn.dev/merutin/articles/e1de2cbe575b13
+
+
+## デプロイ
+```bash
+cd serverless
+npx sls deploy --aws-profile default --stage dev
+```
