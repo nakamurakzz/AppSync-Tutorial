@@ -1,11 +1,11 @@
 #!/bin/bash
-printf "Create RDS cluster\n"
+echo "Create RDS cluster"
 REGION=ap-northeast-1
-printf "Region: $REGION\n"
+echo "Region: $REGION"
 
 # select environment
-printf "select environment\n"
-printf "1: dev, 2: stg, 3: prod\n"
+echo "select environment"
+echo "1: dev, 2: stg, 3: prod"
 read ENV_NUM
 if [ $ENV_NUM == 1 ]; then
   ENV=dev
@@ -14,75 +14,101 @@ elif [ $ENV_NUM == 2 ]; then
 elif [ $ENV_NUM == 3 ]; then
   ENV=prod
 else
-  printf "invalid number\n"
+  echo "invalid number"
   exit 1
 fi
 
 # .envからUSERNAME, COMPLEX_PASSWORDを読み込む
-eval "$(grep 'USERNAME\|COMPLEX_PASSWORD' .env.$ENV)"
+USERNAME=$(grep USERNAME .env.$ENV | cut -d '=' -f 2)
+COMPLEX_PASSWORD=$(grep COMPLEX_PASSWORD .env.$ENV | cut -d '=' -f 2)
 
-printf "$USERNAME\n"
-printf "$COMPLEX_PASSWORD\n"
+echo $USERNAME
+echo $COMPLEX_PASSWORD
 
-printf "input aws profile\n"
+echo "input aws profile"
 read PROFILE
 
-printf "Creating RDS cluster\n"
+echo "Creating RDS cluster"
 
 aws rds create-db-cluster --db-cluster-identifier cluster-endpoint-$ENV  --master-username $USERNAME \
---master-user-password $COMPLEX_PASSWORD --engine aurora --engine-mode serverless \
+--master-user-password $COMPLEX_PASSWORD --engine aurora-mysql --engine-version 5.7.mysql_aurora.2.08.3 --engine-mode serverless \
 --region $REGION \
 --profile $PROFILE > /dev/null
 
-printf "RDS cluster created\n"
+if [ $? -ne 0 ]; then
+  echo "Failed to create RDS cluster"
+  exit 1
+fi
 
-printf "Creating RDS cluster secret\n"
+echo "RDS cluster created"
+
+echo "Creating RDS cluster secret"
 aws secretsmanager create-secret \
-    --name RDSSecret \
+    --name RDSSecret-$ENV \
     --secret-string "{\"username\":\"$USERNAME\",\"password\":\"$COMPLEX_PASSWORD\"}" \
     --region $REGION \
     --profile $PROFILE > /dev/null
-printf "RDS cluster secret created\n"
+
+if [ $? -ne 0 ]; then
+  echo "Failed to create RDS cluster secret"
+  exit 1
+fi
+
+echo "RDS cluster secret created"
 
 # Get RDS Cluster ARN
-printf "Getting RDS cluster ARN\n"
+echo "Getting RDS cluster ARN"
 RDS_ARN=$(aws rds describe-db-clusters --db-cluster-identifier cluster-endpoint-$ENV --region $REGION --profile $PROFILE | jq -r '.DBClusters[].DBClusterArn')
 RDS_CLUSTER_ID=$(aws rds describe-db-clusters --db-cluster-identifier cluster-endpoint-$ENV --region $REGION --profile $PROFILE | jq -r '.DBClusters[].DBClusterIdentifier')
 
 # Get RDS Cluster Secret ARN
-printf "Getting RDS cluster secret ARN\n"
-RDS_SECRET_ARN=$(aws secretsmanager describe-secret --secret-id RDSSecret --region $REGION --profile $PROFILE | jq -r '.ARN')
+echo "Getting RDS cluster secret ARN"
+RDS_SECRET_ARN=$(aws secretsmanager describe-secret --secret-id RDSSecret-$ENV --region $REGION --profile $PROFILE | jq -r '.ARN')
 
-printf "---------------------------------------------------\n"
-printf "RDS cluster ARN: $RDS_ARN\n"
-printf "RDS cluster secret ARN: $RDS_SECRET_ARN\n"
-printf "---------------------------------------------------\n"
+echo "---------------------------------------------------"
+echo "RDS cluster ARN: $RDS_ARN"
+echo "RDS cluster secret ARN: $RDS_SECRET_ARN"
+echo "---------------------------------------------------"
+
+# Wait for DB Cluster to become available
+echo "Waiting for DB cluster to become available"
+while true; do
+  CLUSTER_STATUS=$(aws rds describe-db-clusters --db-cluster-identifier cluster-endpoint-$ENV --region $REGION --profile $PROFILE | jq -r '.DBClusters[].Status')
+  echo "DB cluster status: $CLUSTER_STATUS"
+  if [ "$CLUSTER_STATUS" == "available" ]; then
+    break
+  fi
+  echo "Waiting for 30 seconds"
+  sleep 30
+done
+echo "DB cluster is now available"
 
 # Enable Data API
-printf "Enabling Data API\n"
+echo "Enabling Data API"
 aws rds modify-db-cluster \
   --db-cluster-identifier cluster-endpoint-$ENV \
   --enable-http-endpoint \
   --region $REGION --profile $PROFILE > /dev/null
-printf "Data API enabled\n"
+
+if [ $? -ne 0 ]; then
+  echo "Failed to enable Data API"
+  exit 1
+fi
+
+echo "Data API enabled"
 
 RDS_DATA_API_ARN=$(aws rds describe-db-clusters --db-cluster-identifier cluster-endpoint-$ENV --region $REGION --profile $PROFILE | jq -r '.DBClusters[].DBClusterArn')
 
-# Set database and table names
-DB_NAME=TESTDB
-TABLE_NAME=todos
-
 # Create database
-printf "Creating database\n"
+echo "Creating database"
 aws rds-data execute-statement --resource-arn $RDS_DATA_API_ARN \
-  --secret-arn $RDS_SECRET_ARN \
-  --region $REGION --profile $PROFILE --sql "CREATE DATABASE IF NOT EXISTS $DB_NAME" > /dev/null
-printf "Database created\n"
+  --secret-arn $RDS_SECRET_ARN  \
+  --region $REGION --profile $PROFILE --sql "CREATE DATABASE IF NOT EXISTS TESTDB" > /dev/null
 
-# Create table
-printf "Creating table\n"
-aws rds-data execute-statement --resource-arn $RDS_DATA_API_ARN \
-  --secret-arn $RDS_SECRET_ARN \
-  --region $REGION --profile $PROFILE \
-  --sql "CREATE TABLE IF NOT EXISTS $TABLE_NAME(id varchar(200), title varchar(200), completed boolean)" --database "$DB_NAME" > /dev/null
-printf "Table created\n"
+if [ $? -ne 0 ]; then
+  echo "Failed to create database"
+  exit 1
+fi
+
+echo "Database created"
+
