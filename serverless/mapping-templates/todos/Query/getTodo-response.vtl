@@ -1,1 +1,5 @@
-$utils.toJson($utils.rds.toJsonObject($ctx.result)[0][0])
+#if ($utils.rds.toJsonObject($ctx.result).isEmpty())
+  $utils.toJson(null)
+#else
+  $utils.toJson($utils.rds.toJsonObject($ctx.result)[0][0])
+#end
