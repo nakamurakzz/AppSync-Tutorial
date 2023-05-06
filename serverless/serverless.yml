@@ -1,0 +1,39 @@
+service: appsync-template
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ap-northeast-1
+    
+plugins:
+  - serverless-appsync-plugin
+
+custom:
+  appSync:
+    authenticationType: API_KEY
+    logConfig:
+      level: ALL
+      retentionInDays: 10
+    schema: src/graphql/schema.graphql
+    apiKeys:
+      - name: my-api-key
+        expiresAfter: 30d
+    mappingTemplates:
+      - type: Query
+        request: todos/Query/getAllTodos-request.vtl
+        response: todos/Query/getAllTodos-response.vtl
+        dataSource: RDS_DATA_SOURCE
+        field: getAllTodos
+      - type: Query
+        request: todos/Query/getTodo-request.vtl
+        response: todos/Query/getTodo-response.vtl
+        dataSource: RDS_DATA_SOURCE
+        field: getTodo
+    dataSources:
+      - type: RELATIONAL_DATABASE
+        name: RDS_DATA_SOURCE
+        config:
+          region: ap-northeast-1
+          databaseName: TESTDB
+          dbClusterIdentifier: http-endpoint-test
+          awsSecretStoreArn: シークレットマネージャーのARN
+          

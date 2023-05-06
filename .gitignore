@@ -1,4 +1,6 @@
-.env
+.env.dev
+.env.stg
+.env.prd
 
 # package directories
 node_modules

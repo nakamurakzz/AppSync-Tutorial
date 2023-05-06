@@ -9,10 +9,6 @@
   "engines": {
     "node": ">=14.15.0"
   },
-  "dependencies": {
-    "@middy/core": "^3.4.0",
-    "@middy/http-json-body-parser": "^3.4.0"
-  },
   "devDependencies": {
     "@serverless/typescript": "^3.29.0",
     "@types/aws-lambda": "^8.10.71",
@@ -20,8 +16,9 @@
     "esbuild": "^0.14.11",
     "json-schema-to-ts": "^1.5.0",
     "serverless": "^3.0.0",
-    "serverless-appsync-plugin": "^2.2.0",
+    "serverless-appsync-plugin": "^1.14.0",
     "serverless-appsync-simulator": "^0.20.0",
+    "serverless-dotenv-plugin": "^6.0.0",
     "serverless-esbuild": "^1.23.3",
     "serverless-offline": "^12.0.4",
     "ts-node": "^10.4.0",
