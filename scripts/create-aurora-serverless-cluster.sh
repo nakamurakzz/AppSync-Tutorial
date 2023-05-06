@@ -1,85 +1,88 @@
 #!/bin/bash
-echo "Create RDS cluster"
+printf "Create RDS cluster\n"
 REGION=ap-northeast-1
-echo "Region: $REGION"
+printf "Region: $REGION\n"
 
 # select environment
-echo "select environment"
-echo "1: dev, 2: stg, 3: prod"
+printf "select environment\n"
+printf "1: dev, 2: stg, 3: prod\n"
 read ENV_NUM
-if ENV_NUM == 1; then
+if [ $ENV_NUM == 1 ]; then
   ENV=dev
-elif ENV_NUM == 2; then
+elif [ $ENV_NUM == 2 ]; then
   ENV=stg
-elif ENV_NUM == 3; then
+elif [ $ENV_NUM == 3 ]; then
   ENV=prod
 else
-  echo "invalid number"
+  printf "invalid number\n"
   exit 1
 fi
 
 # .envからUSERNAME, COMPLEX_PASSWORDを読み込む
-USERNAME=$(grep USERNAME .env.$ENV | cut -d '=' -f 2)
-COMPLEX_PASSWORD=$(grep COMPLEX_PASSWORD .env.$ENV | cut -d '=' -f 2)
+eval "$(grep 'USERNAME\|COMPLEX_PASSWORD' .env.$ENV)"
 
-echo $USERNAME
-echo $COMPLEX_PASSWORD
+printf "$USERNAME\n"
+printf "$COMPLEX_PASSWORD\n"
 
-echo "input aws profile"
+printf "input aws profile\n"
 read PROFILE
 
-echo "Creating RDS cluster"
+printf "Creating RDS cluster\n"
 
 aws rds create-db-cluster --db-cluster-identifier cluster-endpoint-$ENV  --master-username $USERNAME \
 --master-user-password $COMPLEX_PASSWORD --engine aurora --engine-mode serverless \
 --region $REGION \
 --profile $PROFILE > /dev/null
 
-echo "RDS cluster created"
+printf "RDS cluster created\n"
 
-echo "Creating RDS cluster secret"
+printf "Creating RDS cluster secret\n"
 aws secretsmanager create-secret \
     --name RDSSecret \
     --secret-string "{\"username\":\"$USERNAME\",\"password\":\"$COMPLEX_PASSWORD\"}" \
     --region $REGION \
     --profile $PROFILE > /dev/null
-echo "RDS cluster secret created"
+printf "RDS cluster secret created\n"
 
 # Get RDS Cluster ARN
-echo "Getting RDS cluster ARN"
+printf "Getting RDS cluster ARN\n"
 RDS_ARN=$(aws rds describe-db-clusters --db-cluster-identifier cluster-endpoint-$ENV --region $REGION --profile $PROFILE | jq -r '.DBClusters[].DBClusterArn')
 RDS_CLUSTER_ID=$(aws rds describe-db-clusters --db-cluster-identifier cluster-endpoint-$ENV --region $REGION --profile $PROFILE | jq -r '.DBClusters[].DBClusterIdentifier')
 
 # Get RDS Cluster Secret ARN
-echo "Getting RDS cluster secret ARN"
+printf "Getting RDS cluster secret ARN\n"
 RDS_SECRET_ARN=$(aws secretsmanager describe-secret --secret-id RDSSecret --region $REGION --profile $PROFILE | jq -r '.ARN')
 
-echo "---------------------------------------------------"
-echo "RDS cluster ARN: $RDS_ARN"
-echo "RDS cluster secret ARN: $RDS_SECRET_ARN"
-echo "---------------------------------------------------"
+printf "---------------------------------------------------\n"
+printf "RDS cluster ARN: $RDS_ARN\n"
+printf "RDS cluster secret ARN: $RDS_SECRET_ARN\n"
+printf "---------------------------------------------------\n"
 
-# Ebnable Data API
-echo "Enabling Data API"
+# Enable Data API
+printf "Enabling Data API\n"
 aws rds modify-db-cluster \
-  --db-cluster-identifier http-endpoint-test \
+  --db-cluster-identifier cluster-endpoint-$ENV \
   --enable-http-endpoint \
   --region $REGION --profile $PROFILE > /dev/null
-echo "Data API enabled"
+printf "Data API enabled\n"
 
 RDS_DATA_API_ARN=$(aws rds describe-db-clusters --db-cluster-identifier cluster-endpoint-$ENV --region $REGION --profile $PROFILE | jq -r '.DBClusters[].DBClusterArn')
 
+# Set database and table names
+DB_NAME=TESTDB
+TABLE_NAME=todos
+
 # Create database
-echo "Creating database"
+printf "Creating database\n"
 aws rds-data execute-statement --resource-arn $RDS_DATA_API_ARN \
-  --secret-arn $RDS_SECRET_ARN  \
-  --region $REGION --profile $PROFILE --sql "CREATE DATABASE IF NOT EXISTS TESTDB" > /dev/null
-echo "Database created"
+  --secret-arn $RDS_SECRET_ARN \
+  --region $REGION --profile $PROFILE --sql "CREATE DATABASE IF NOT EXISTS $DB_NAME" > /dev/null
+printf "Database created\n"
 
 # Create table
-echo "Creating table"
+printf "Creating table\n"
 aws rds-data execute-statement --resource-arn $RDS_DATA_API_ARN \
   --secret-arn $RDS_SECRET_ARN \
   --region $REGION --profile $PROFILE \
-  --sql "CREATE TABLE IF NOT EXISTS todos(id varchar(200), title varchar(200), completed boolean)" --database "TESTDB" > /dev/null
-echo "Table created"
+  --sql "CREATE TABLE IF NOT EXISTS $TABLE_NAME(id varchar(200), title varchar(200), completed boolean)" --database "$DB_NAME" > /dev/null
+printf "Table created\n"
