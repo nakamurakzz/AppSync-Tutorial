@@ -8,3 +8,9 @@ type Query {
   getTodo(id: ID!): Todo
   getAllTodos: [Todo]
 }
+
+type Mutation {
+  createTodo(
+    title: String!
+  ): Todo
+}

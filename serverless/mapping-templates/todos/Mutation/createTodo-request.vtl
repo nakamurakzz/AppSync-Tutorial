@@ -1,0 +1,8 @@
+#set($id=$utils.autoId())
+{
+    "version": "2018-05-29",
+    "statements": [
+        "insert into todos VALUES ('$id', '$ctx.args.title', false)",
+        "select * from todos WHERE id = '$id'"
+    ]
+}

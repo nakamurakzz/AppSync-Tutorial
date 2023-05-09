@@ -28,6 +28,11 @@ custom:
         response: todos/Query/getTodo-response.vtl
         dataSource: RDS_DATA_SOURCE
         field: getTodo
+      - type: Mutation
+        request: todos/Mutation/createTodo-request.vtl
+        response: todos/Mutation/createTodo-response.vtl
+        dataSource: RDS_DATA_SOURCE
+        field: createTodo
     dataSources:
       - type: RELATIONAL_DATABASE
         name: RDS_DATA_SOURCE
