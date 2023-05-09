@@ -18,4 +18,7 @@ type Mutation {
     title: String!
     completed: Boolean!
   ): Todo
+  deleteTodo(
+    id: ID!
+  ): Todo
 }
