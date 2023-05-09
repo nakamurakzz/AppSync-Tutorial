@@ -33,6 +33,11 @@ custom:
         response: todos/Mutation/createTodo-response.vtl
         dataSource: RDS_DATA_SOURCE
         field: createTodo
+      - type: Mutation
+        request: todos/Mutation/updateTodo-request.vtl
+        response: todos/Mutation/updateTodo-response.vtl
+        dataSource: RDS_DATA_SOURCE
+        field: updateTodo
     dataSources:
       - type: RELATIONAL_DATABASE
         name: RDS_DATA_SOURCE

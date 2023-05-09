@@ -1,0 +1,7 @@
+{
+    "version": "2018-05-29",
+    "statements": [
+        $util.toJson("update todos set title='$ctx.args.title', completed=$ctx.args.completed WHERE id='$ctx.args.id'"),
+        $util.toJson("select * from todos WHERE id = '$ctx.args.id'")
+    ]
+}
