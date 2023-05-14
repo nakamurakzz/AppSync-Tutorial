@@ -1,3 +1,7 @@
+#set ($validId = $util.isString($ctx.args.id) && !$util.isNullOrBlank($ctx.args.id))
+#if (!$validId)
+    $util.error("Input for 'id' is not valid.", "ValidationError")
+#end
 {
     "version": "2018-05-29",
     "statements": [

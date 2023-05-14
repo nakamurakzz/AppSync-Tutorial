@@ -1,3 +1,7 @@
+#set ($validTitle = $util.isString($ctx.args.title) && !$util.isNullOrBlank($ctx.args.title))
+#if (!$validTitle)
+    $util.error("Input for 'title' is not valid.", "ValidationError")
+#end
 #set($id=$utils.autoId())
 {
     "version": "2018-05-29",
