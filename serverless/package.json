@@ -4,7 +4,9 @@
   "description": "Serverless aws-nodejs-typescript template",
   "main": "serverless.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "deploy:dev": "export DB_SECRET_ARN=`grep DB_SECRET_ARN ../.env.dev | cut -d '=' -f 2`; npx serverless deploy --aws-profile default --stage dev",
+    "deploy:stg": "export DB_SECRET_ARN=`grep DB_SECRET_ARN ../.env.stg | cut -d '=' -f 2`; npx serverless deploy --aws-profile default --stage stg",
+    "deploy:prd": "export DB_SECRET_ARN=`grep DB_SECRET_ARN ../.env.prd | cut -d '=' -f 2`; npx serverless deploy --aws-profile default --stage prd"
   },
   "engines": {
     "node": ">=14.15.0"
