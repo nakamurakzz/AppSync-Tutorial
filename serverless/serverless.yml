@@ -49,6 +49,6 @@ custom:
         config:
           region: ap-northeast-1
           databaseName: TESTDB
-          dbClusterIdentifier: cluster-endpoint-dev
-          awsSecretStoreArn: シークレットマネージャーのARN
+          dbClusterIdentifier: ${env:DB_CLUSTER_ID}
+          awsSecretStoreArn: ${env:DB_SECRET_ARN}
           

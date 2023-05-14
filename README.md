@@ -1,34 +1,47 @@
 # AppSync-Tutorial
 AppSyncのチュートリアル
 
+## 環境変数用ファイルの作成
+```bash
+cp .env.sample .env.{dev|stg|prod}
+```
+
 ## Aurora Serverlessクラスターの作成
+- データベースのID/PWを.env.{dev|stg|prod}に設定する
+  - `DB_USER`
+  - `DB_PASSWORD`
+
 ```bash
 sh ./scrips/create-aurora-serverless-cluster.sh
 ```
 
-実行結果から.envに値を設定する
-- `RDS cluster ARN`の値を環境変数の`DB_CLUSTER_ARN`に設定する
+- 作成する環境を選択する
+  - dev|stg|prod
+- 作成するAWSアカウントのプロファイルを入力する
+
+実行結果からSecretManagerのARNを.envに値を設定する
 - `RDS cluster secret ARN`の値を環境変数の`DB_SECRET_ARN`に設定する
 
 ```bash
 ---------------------------------------------------
-RDS cluster ARN: xxxxxxxx
 RDS cluster secret ARN: yyyyyyyy
 ---------------------------------------------------
 ```
 
-## RDS
-- Aurora Serverlessクラスターの作成
-- Data APIの作成
-  - https://docs.aws.amazon.com/ja_jp/AmazonRDS/latest/AuroraUserGuide/data-api.html 
-- テーブルの作成
+- 作成する環境を選択する
+  - dev|stg|prod
+- 作成するAWSアカウントのプロファイルを入力する
 
-## Serverless Framework
-https://zenn.dev/merutin/articles/e1de2cbe575b13
+## テーブル作成
+```bash
+sh ./scrips/create-sample-table.sh
+```
 
+- todosテーブルが作成される
 
 ## デプロイ
+デプロイ
 ```bash
 cd serverless
-npx sls deploy --aws-profile default --stage dev
+npm run deploy:{dev|stg|prod} --aws-profile {AWSアカウントのプロファイル名}
 ```

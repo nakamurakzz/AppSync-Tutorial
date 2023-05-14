@@ -4,9 +4,9 @@
   "description": "Serverless aws-nodejs-typescript template",
   "main": "serverless.ts",
   "scripts": {
-    "deploy:dev": "export DB_SECRET_ARN=`grep DB_SECRET_ARN ../.env.dev | cut -d '=' -f 2`; npx serverless deploy --aws-profile default --stage dev",
-    "deploy:stg": "export DB_SECRET_ARN=`grep DB_SECRET_ARN ../.env.stg | cut -d '=' -f 2`; npx serverless deploy --aws-profile default --stage stg",
-    "deploy:prd": "export DB_SECRET_ARN=`grep DB_SECRET_ARN ../.env.prd | cut -d '=' -f 2`; npx serverless deploy --aws-profile default --stage prd"
+    "deploy:dev": "export DB_SECRET_ARN=`grep DB_SECRET_ARN ../.env.dev | cut -d '=' -f 2`;export DB_CLUSTER_ID=`grep DB_CLUSTER_ID ../.env.dev | cut -d '=' -f 2`; npx serverless deploy --stage dev",
+    "deploy:stg": "export DB_SECRET_ARN=`grep DB_SECRET_ARN ../.env.stg | cut -d '=' -f 2`;export DB_CLUSTER_ID=`grep DB_CLUSTER_ID ../.env.stg | cut -d '=' -f 2`;npx serverless deploy --stage stg",
+    "deploy:prd": "export DB_SECRET_ARN=`grep DB_SECRET_ARN ../.env.prd | cut -d '=' -f 2`;export DB_CLUSTER_ID=`grep DB_CLUSTER_ID ../.env.prd | cut -d '=' -f 2`;npx serverless deploy --stage prd"
   },
   "engines": {
     "node": ">=14.15.0"

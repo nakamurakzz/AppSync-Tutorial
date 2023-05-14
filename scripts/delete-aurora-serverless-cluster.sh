@@ -24,7 +24,7 @@ read PROFILE
 # Get RDS Cluster ARN
 echo "Getting RDS cluster ARN"
 RDS_ARN=$(aws rds describe-db-clusters --db-cluster-identifier cluster-endpoint-$ENV --region $REGION --profile $PROFILE | jq -r '.DBClusters[].DBClusterArn')
-RDS_CLUSTER_ID=$(aws rds describe-db-clusters --db-cluster-identifier cluster-endpoint-$ENV --region $REGION --profile $PROFILE | jq -r '.DBClusters[].DBClusterIdentifier')
+DB_CLUSTER_ID=$(grep DB_CLUSTER_ID .env.$ENV | cut -d '=' -f 2)
 
 # Get RDS Cluster Secret ARN
 echo "Getting RDS cluster secret ARN"
@@ -36,7 +36,7 @@ TABLE_NAME=todos
 
 # Delete RDS cluster
 echo "Deleting RDS cluster"
-aws rds delete-db-cluster --db-cluster-identifier cluster-endpoint-$ENV --region $REGION --profile $PROFILE --skip-final-snapshot > /dev/null
+aws rds delete-db-cluster --db-cluster-identifier $DB_CLUSTER_ID --region $REGION --profile $PROFILE --skip-final-snapshot > /dev/null
 
 if [ $? -ne 0 ]; then
   echo "Failed to delete RDS cluster"
