@@ -1,5 +1,5 @@
 # AppSync-Tutorial
-AppSyncのチュートリアル
+AppSyncをServerless Frameworkで構築してみる
 
 ## 環境変数用ファイルの作成
 ```bash
